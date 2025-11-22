@@ -6,36 +6,29 @@ def connect_db():
     return sqlite3.connect(DATABASE)
 
 def generate_test_data(num_songs):
-    """Generate test data for the songs table."""
+    """Insert test songs into the songs table."""
     db = connect_db()
     cursor = db.cursor()
 
-    # Make sure the table exists
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS songs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            artist TEXT NOT NULL,
-            album TEXT,
-            year TEXT
+            artist TEXT NOT NULL
         );
     """)
 
-    # Insert test data
     for i in range(num_songs):
         title = f"Test Song {i}"
         artist = f"Test Artist {i}"
-        album = f"Test Album {i}"
-        year = f"200{i}"
-
         cursor.execute(
-            "INSERT INTO songs (title, artist, album, year) VALUES (?, ?, ?, ?)",
-            (title, artist, album, year)
+            "INSERT INTO songs (title, artist) VALUES (?, ?)",
+            (title, artist)
         )
 
     db.commit()
-    print(f"{num_songs} test songs added.")
     db.close()
+    print(f"{num_songs} test songs added.")
 
 if __name__ == "__main__":
     generate_test_data(10)
