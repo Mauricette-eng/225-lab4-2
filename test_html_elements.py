@@ -6,36 +6,35 @@ from selenium.webdriver.support import expected_conditions as EC
 import unittest
 
 class TestPlaylist(unittest.TestCase):
-
     def setUp(self):
-        opts = Options()
-        opts.add_argument("--headless")
-        opts.add_argument("--no-sandbox")
-        opts.add_argument("--disable-dev-shm-usage")
-        self.driver = webdriver.Firefox(options=opts)
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        self.driver = webdriver.Firefox(options=options)
 
-    def test_playlist(self):
+    def test_playlist_contains_test_songs(self):
         driver = self.driver
 
-        # CHANGE THIS TO YOUR DEV IP
+        # 👇 Use your Dev ClusterIP (no /playlist if your app redirects)
         driver.get("http://10.48.229.152/playlist")
 
-        # Wait until the table loads
+        # Wait for the page to load and table to be present
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.TAG_NAME, "table"))
         )
 
-        # Check for the 10 generated test songs
+        page_source = driver.page_source
+
+        # Verify that 10 test songs from data-gen.py are present
         for i in range(10):
             title = f"Test Song {i}"
-            artist = f"Artist {i}"
+            artist = f"Test Artist {i}"
 
-            page = driver.page_source
+            assert title in page_source, f"Song title '{title}' not found on page"
+            assert artist in page_source, f"Artist '{artist}' not found on page"
 
-            assert title in page, f"Song title {title} not found"
-            assert artist in page, f"Artist {artist} not found"
-
-        print("Playlist test passed — all songs verified.")
+        print("✔ Selenium test passed: all 10 test songs and artists were found in the playlist.")
 
     def tearDown(self):
         self.driver.quit()
