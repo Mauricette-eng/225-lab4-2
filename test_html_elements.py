@@ -13,32 +13,30 @@ class TestPlaylist(unittest.TestCase):
         options.add_argument("--disable-dev-shm-usage")
         self.driver = webdriver.Firefox(options=options)
 
-    def test_playlist_contains_test_songs(self):
+    def test_songs_present(self):
         driver = self.driver
 
-        # 👇 Use your Dev ClusterIP (no /playlist if your app redirects)
+        # Use your Dev ClusterIP; adjust if needed
         driver.get("http://10.48.229.152/playlist")
 
-        # Wait for the page to load and table to be present
+        # Wait for the table to load
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.TAG_NAME, "table"))
         )
 
-        page_source = driver.page_source
+        page = driver.page_source
 
-        # Verify that 10 test songs from data-gen.py are present
+        # Check for the 10 test songs from data-gen.py
         for i in range(10):
             title = f"Test Song {i}"
             artist = f"Test Artist {i}"
+            assert title in page, f"Song title '{title}' not found on page"
+            assert artist in page, f"Artist '{artist}' not found on page"
 
-            assert title in page_source, f"Song title '{title}' not found on page"
-            assert artist in page_source, f"Artist '{artist}' not found on page"
-
-        print("✔ Selenium test passed: all 10 test songs and artists were found in the playlist.")
+        print("✔ Selenium test passed: all 10 test songs and artists are present.")
 
     def tearDown(self):
         self.driver.quit()
 
 if __name__ == "__main__":
     unittest.main()
-
